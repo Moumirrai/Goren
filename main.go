@@ -12,8 +12,9 @@ import (
 )
 
 type Config struct {
-	Marker   string `json:"marker"`
-	MakeCopy bool   `json:"makeCopy"`
+	Marker    string `json:"marker"`
+	MakeCopy  bool   `json:"makeCopy"`
+	OutputDir string `json:"outputDir"`
 }
 
 func getConfigFilePath() string {
@@ -23,7 +24,7 @@ func getConfigFilePath() string {
 }
 
 func readConfig() (Config, error) {
-	config := Config{Marker: "SO ", MakeCopy: true}
+	config := Config{Marker: "SO ", MakeCopy: true, OutputDir: "RenamedFiles"}
 
 	configPath := getConfigFilePath()
 
@@ -64,7 +65,7 @@ func writeConfig(config Config) error {
 	return nil
 }
 
-func renameAndCopyFiles(arrayOfFilePaths []string, marker string, copy bool) {
+func renameAndCopyFiles(arrayOfFilePaths []string, marker string, copy bool, outDir string) {
 	if len(arrayOfFilePaths) == 0 {
 		fmt.Println("No files to process.")
 		return
@@ -77,7 +78,7 @@ func renameAndCopyFiles(arrayOfFilePaths []string, marker string, copy bool) {
 	// Only create the new directory if copy is true
 	var newDir string
 	if copy {
-		newDir = filepath.Join(outputDir, "RenamedFiles")
+		newDir = filepath.Join(outputDir, outDir)
 		_, err := os.Stat(newDir)
 		if os.IsNotExist(err) {
 			err := os.Mkdir(newDir, 0755)
@@ -168,6 +169,15 @@ func main() {
 
 	marker := config.Marker
 	makeCopy := config.MakeCopy
+	outDir := strings.ReplaceAll(config.OutputDir, " ", "_")
 
-	renameAndCopyFiles(arrayOfFilePaths, marker, makeCopy)
+	if outDir == "" {
+		outDir = "RenamedFiles"
+	} else if strings.ContainsAny(outDir, `\/:*?"<>|`) {
+		fmt.Println("Output directory name contains illegal characters for windows directory name.")
+		bufio.NewReader(os.Stdin).ReadBytes('\n')
+		return
+	}
+
+	renameAndCopyFiles(arrayOfFilePaths, marker, makeCopy, outDir)
 }

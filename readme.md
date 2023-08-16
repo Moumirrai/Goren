@@ -31,13 +31,16 @@ The utility generates a configuration file named "renconfig.json" in the same di
 ```json
 {
   "marker": "SO ",
-  "makeCopy": true
+  "makeCopy": true,
+  "outputDir": "RenamedFiles"
 }
 ```
 
 - The **marker** field specifies the text that the new filenames should start with. You can leave this unchanged.
 
 - The **makeCopy** field can be set to "false" if you want the utility to directly rename files without creating copies in the "RenamedFiles" folder. This can be useful to save disk space, but it's recommended to keep backups of original files.
+
+- The **outputDir** field specifies the name of the folder into which the renamed files will be copied."
 
 ## License
 This utility is provided under the [MIT License](https://github.com/Moumirrai/Goren/blob/master/LICENSE).
