@@ -89,9 +89,26 @@ func renameAndCopyFiles(arrayOfFilePaths []string, marker string, copy bool, out
 		}
 	}
 
+	var existingFilenames map[string]int16
+	if !copy {
+		existingFilenames = getFilenamesFromDir(outputDir)
+	} else {
+		existingFilenames = getFilenamesFromDir(newDir)
+	}
+
 	for _, filePath := range arrayOfFilePaths {
 		fileName := filepath.Base(filePath)
 		modifiedFileName := modifyFileName(fileName, marker)
+
+		// Check if the file already exists, get integer from map, and increment it
+		if _, ok := existingFilenames[modifiedFileName]; ok {
+			existingFilenames[modifiedFileName] += 1
+			splitArray := strings.Split(modifiedFileName, ".")
+			modifiedFileName = strings.Join(splitArray[:len(splitArray)-1], ".") + fmt.Sprintf(" (%d).", existingFilenames[modifiedFileName]) + splitArray[len(splitArray)-1]
+		} else {
+			existingFilenames[modifiedFileName] = 0
+		}
+
 		newFilePath := filepath.Join(newDir, modifiedFileName)
 		modifiedFilePath := filepath.Join(outputDir, modifiedFileName)
 
@@ -110,6 +127,20 @@ func renameAndCopyFiles(arrayOfFilePaths []string, marker string, copy bool, out
 			fmt.Printf("Copied and renamed: %s -> %s\n", fileName, modifiedFileName)
 		}
 	}
+}
+
+func getFilenamesFromDir(dir string) map[string]int16 {
+	files, err := ioutil.ReadDir(dir)
+	if err != nil {
+		fmt.Println("Error reading directory:", err)
+		return nil
+	}
+
+	filenames := make(map[string]int16)
+	for _, file := range files {
+		filenames[file.Name()] = 0
+	}
+	return filenames
 }
 
 func modifyFileName(fileName, marker string) string {
