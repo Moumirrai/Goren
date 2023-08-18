@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -28,7 +27,7 @@ func readConfig() (Config, error) {
 
 	configPath := getConfigFilePath()
 
-	configBytes, err := ioutil.ReadFile(configPath)
+	configBytes, err := os.ReadFile(configPath)
 	if err != nil {
 		// If the file doesn't exist, create it with default value
 		if os.IsNotExist(err) {
@@ -57,7 +56,7 @@ func writeConfig(config Config) error {
 
 	configPath := getConfigFilePath()
 
-	err = ioutil.WriteFile(configPath, configBytes, 0644)
+	err = os.WriteFile(configPath, configBytes, 0644)
 	if err != nil {
 		return err
 	}
@@ -130,7 +129,7 @@ func renameAndCopyFiles(arrayOfFilePaths []string, marker string, copy bool, out
 }
 
 func getFilenamesFromDir(dir string) map[string]int16 {
-	files, err := ioutil.ReadDir(dir)
+	files, err := os.ReadDir(dir)
 	if err != nil {
 		fmt.Println("Error reading directory:", err)
 		return nil
