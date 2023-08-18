@@ -64,7 +64,7 @@ func writeConfig(config Config) error {
 	return nil
 }
 
-func renameAndCopyFiles(arrayOfFilePaths []string, marker string, copy bool, outDir string) {
+func renameAndCopyFiles(arrayOfFilePaths []string, marker string, makeCopy bool, outDir string) {
 	if len(arrayOfFilePaths) == 0 {
 		fmt.Println("No files to process.")
 		return
@@ -76,7 +76,7 @@ func renameAndCopyFiles(arrayOfFilePaths []string, marker string, copy bool, out
 
 	// Only create the new directory if copy is true
 	var newDir string
-	if copy {
+	if makeCopy {
 		newDir = filepath.Join(outputDir, outDir)
 		_, err := os.Stat(newDir)
 		if os.IsNotExist(err) {
@@ -89,7 +89,7 @@ func renameAndCopyFiles(arrayOfFilePaths []string, marker string, copy bool, out
 	}
 
 	var existingFilenames map[string]int16
-	if !copy {
+	if !makeCopy {
 		existingFilenames = getFilenamesFromDir(outputDir)
 	} else {
 		existingFilenames = getFilenamesFromDir(newDir)
@@ -111,8 +111,8 @@ func renameAndCopyFiles(arrayOfFilePaths []string, marker string, copy bool, out
 		newFilePath := filepath.Join(newDir, modifiedFileName)
 		modifiedFilePath := filepath.Join(outputDir, modifiedFileName)
 
-		//if copy is false, rename the file, else copy the file
-		if !copy {
+		// If copy is false, rename the file, else copy the file
+		if !makeCopy {
 			err := renameFile(filePath, modifiedFilePath)
 			if err != nil {
 				return
@@ -151,7 +151,7 @@ func modifyFileName(fileName, marker string) string {
 	fmt.Println(fileName)
 
 	markerIndex := strings.Index(fileName, marker)
-	modifiedString := fileName[markerIndex:]
+	modifiedString := fileName[markerIndex+1:]
 
 	splitArray := strings.Split(modifiedString, " - ")
 	splitArray[0] = strings.ReplaceAll(splitArray[0], "-", ".")
